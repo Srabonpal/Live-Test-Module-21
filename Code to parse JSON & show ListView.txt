@@ -1,0 +1,49 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'recipe.dart'; // Import the model file
+
+class RecipeListScreen extends StatefulWidget {
+  @override
+  _RecipeListScreenState createState() => _RecipeListScreenState();
+}
+
+class _RecipeListScreenState extends State<RecipeListScreen> {
+  List<Recipe> recipes = [];
+
+  Future<void> loadRecipes() async {
+    final String response = await DefaultAssetBundle.of(context)
+        .loadString("assets/recipes.json");
+    final data = json.decode(response);
+    
+    setState(() {
+      recipes = (data["recipes"] as List)
+          .map((item) => Recipe.fromJson(item))
+          .toList();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadRecipes();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Food Recipes")),
+      body: recipes.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: recipes.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(recipes[index].title),
+                  subtitle: Text(recipes[index].description),
+                  leading: Icon(Icons.restaurant_menu),
+                );
+              },
+            ),
+    );
+  }
+}
